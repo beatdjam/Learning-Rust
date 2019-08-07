@@ -15,6 +15,9 @@ jobs:
           keys:
             - v1-cargo-lock-{{ checksum "Cargo.lock" }}
       - run:
+          name: cd
+          command: cd ./guessing_game
+      - run:
           name: build
           command: cargo build
       - run:
