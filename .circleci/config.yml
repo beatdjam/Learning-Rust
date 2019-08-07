@@ -15,11 +15,8 @@ jobs:
           keys:
             - v1-cargo-lock-{{ checksum "Cargo.lock" }}
       - run:
-          name: cd
-          command: cd ./guessing_game
-      - run:
           name: build
-          command: cargo build
+          command: cd ./guessing_game;cargo build
       - run:
           name: lint
           command: cargo clippy -- -D warnings
