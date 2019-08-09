@@ -4,12 +4,7 @@ fn main() {
     println!("{}", word);
 }
 fn first_word(s: &String) -> &str {
-    match s
-        .as_bytes()
-        .iter()
-        .enumerate()
-        .find(|(i, &x)| x == b' ' || i == &s.len())
-    {
+    match s.as_bytes().iter().enumerate().find(|(_i, &x)| x == b' ') {
         None => &s[..],
         Some(pair) => &s[0..pair.0],
     }
