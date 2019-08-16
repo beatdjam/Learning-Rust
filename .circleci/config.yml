@@ -16,10 +16,10 @@ jobs:
             - v1-cargo-lock-{{ checksum "Cargo.lock" }}
       - run:
           name: build
-          command: cd ./guessing_game;cargo build;
+          command: cargo build;
       - run:
           name: lint
-          command: cd ./guessing_game;cargo clippy -- -D warnings
+          command: cargo clippy -- -D warnings
       - save_cache:
           key: v1-cargo-lock-{{ checksum "Cargo.lock" }}
           paths:
