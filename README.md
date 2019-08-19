@@ -23,7 +23,7 @@
 ## 1.1. 変数  
 変数宣言には `let`。デフォルトで不変でmutをつけると可変になる。  
 変数の参照には `&` をつける。参照も `&mut` とすることで可変にできる。  
-つまり、下記のようにすることで、`Stringとして宣言したguessを可変の状態でread_line()に渡す'事ができる。
+つまり、下記のようにすることで、`Stringとして宣言したguessを可変の状態でread_line()に渡す`事ができる。
 ```rust
 let mut guess = String::new();
 io::stdin().read_line(&mut guess)
