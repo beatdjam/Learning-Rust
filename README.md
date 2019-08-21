@@ -217,13 +217,19 @@ fn first_word_length(s: &String) -> usize {
 ```rust
 fn main() {
     let mut value = String::from("Hello world");
-    let result = first_word_slice(&value);
-    println!("value : {}", value); // value : Hello world
-    println!("result : {}", result); // result : Hello
+    {
+        let result = first_word_slice(&value);
+        println!("value : {}", value); // value : Hello world
+        println!("result : {}", result); // result : Hello
 
-    // resultがvalueの一部を不変の参照で借用しているため、
-    // valueの値を変更することができずエラーとなるので実行できない
-    // value = String::from("hogefuga");
+        // resultがvalueの一部を不変の参照で借用しているため、
+        // valueの値を変更することができずエラーとなるので実行できない
+        // value = String::from("hogefuga");
+    }
+
+    // sliceによって不変な参照が発生しているのは別スコープのため、
+    // valueの値を変更することが出来る
+    value = String::from("hogefuga");
 }
 
 // 文字列から最初の単語のsliceを取り出す関数
