@@ -14,6 +14,7 @@
         - [1.9.2. 所有権と関数](#192-所有権と関数)
         - [1.9.3. 参照と借用](#193-参照と借用)
             - [1.9.3.1. 可変な参照](#1931-可変な参照)
+            - [スライス型](#スライス型)
 
 <!-- /TOC -->
 
@@ -181,5 +182,55 @@ fn main() {
 fn mutable_s1(s1: &mut String) {
     // 値を加工
     s1.push_str(" world"); 
+}
+```
+
+#### スライス型
+例えば文字列の中から最初の単語を取り出したいようなとき、  
+最初の単語の長さを取得して文字列から取り出すことで実現することが出来る。  
+ただし、単語の長さは `取得時点の値` でしか無いため、その値がどの時点でも参照できるかは保証されない。
+```rust
+fn main() {
+    let mut value = String::from("Hello world");
+    let strlen = first_word_length(&value);
+    // 得られた単語の長さで、文字列から単語を取り出すことは出来る
+    println!("{}", value.get(0..strlen).expect("err")); // Hello
+
+    // でもvalueの値を変えてしまえば値がstrlenの値は意味がなくなってしまう
+    value = String::from("hogefuga");
+    println!("{}", value.get(0..strlen).expect("err")); // hogef
+}
+
+// valueの最初の空白または行末までの長さを求める関数
+fn first_word_length(s: &String) -> usize {
+    match s.as_bytes().iter().enumerate().find(|(_i, &x)| x == b' ') {
+        None => s.len(),
+        Some(pair) => pair.0,
+    }
+}
+```
+
+これを解決するために、スライス型を利用することが出来る。  
+スライス型とはコレクションの中の一連の部分について参照を持つための型。  
+文字列スライスの形で単語を取り出すことによって、元の文字列に対して不変の参照が発生し、  
+その参照が有効な状態では元の文字列を変更できなくなる。  
+```rust
+fn main() {
+    let mut value = String::from("Hello world");
+    let result = first_word_slice(&value);
+    println!("value : {}", value); // value : Hello world
+    println!("result : {}", result); // result : Hello
+
+    // resultがvalueの一部を不変の参照で借用しているため、
+    // valueの値を変更することができずエラーとなるので実行できない
+    // value = String::from("hogefuga");
+}
+
+// 文字列から最初の単語のsliceを取り出す関数
+fn first_word_slice(s: &String) -> &str {
+    match s.as_bytes().iter().enumerate().find(|(_i, &x)| x == b' ') {
+        None => &s[..],
+        Some(pair) => &s[..pair.0],
+    }
 }
 ```
