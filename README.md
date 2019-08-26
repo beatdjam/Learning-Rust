@@ -380,10 +380,8 @@ fn main() {
     };
     println!("{}", tarou.get_full_name());
 }
-
+```
 #### 1.3.3.2. 関数
-
-#### 1.3.3.3. 関数
 引数に`&self`や`self`がない場合、型に紐づく関数として定義される。    
 ```rust
 impl Rectangle {
