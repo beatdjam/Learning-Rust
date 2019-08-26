@@ -1,5 +1,3 @@
-<!-- TOC -->
-
 - [1. Learning-Rust](#1-learning-rust)
     - [1.1. 普遍的なプログラミング概念](#11-普遍的なプログラミング概念)
         - [1.1.1. 変数](#111-変数)
@@ -21,9 +19,8 @@
         - [1.3.1. 構造体の定義とインスタンスの生成](#131-構造体の定義とインスタンスの生成)
             - [1.3.1.1. フィールド初期化省略記法](#1311-フィールド初期化省略記法)
             - [1.3.1.2. 構造体更新記法](#1312-構造体更新記法)
+            - [1.3.1.3. 構造体のデバッグ](#1313-構造体のデバッグ)
         - [1.3.2. タプル様構造体](#132-タプル様構造体)
-
-<!-- /TOC -->
 
 # 1. Learning-Rust
 [![CircleCI](https://circleci.com/gh/beatdjam/Learning-Rust.svg?style=svg)](https://circleci.com/gh/beatdjam/Learning-Rust)  
@@ -318,6 +315,28 @@ let tarou2 = Person {
     // 残りの値を別のインスタンスの値で初期化する
     ..tarou
 };
+```
+
+#### 1.3.1.3. 構造体のデバッグ
+構造体は、そのままでは`println!`マクロでフィールドなどを出力して確認することができない。  
+これは、`println!`は標準では`Displayトレイト`を受け取るが、構造体はこのトレイトを持っていないため。  
+RustにはDebug用の出力を行う機能と`Debugトレイト`が存在しており、下記のように注釈をすることで、  
+インスタンスの中の値などを確認することが出来る。  
+```rust
+// Debugトレイトを継承する注釈
+# [derive(Debug)]
+struct Rectangle {
+    width: u32,
+    height: u32,
+}
+
+fn main() {
+    let rect1 = Rectangle { width: 30, height: 50 };
+
+    // Debug出力を行うための指定子 {:?}
+    // 出力結果: rect1 is Rectangle { width: 30, height: 50 }
+    println!("rect1 is {:?}", rect1); }
+}
 ```
 
 ### 1.3.2. タプル様構造体
