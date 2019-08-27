@@ -1,3 +1,5 @@
+<!-- TOC -->
+
 - [1. Learning-Rust](#1-learning-rust)
     - [1.1. 普遍的なプログラミング概念](#11-普遍的なプログラミング概念)
         - [1.1.1. 変数](#111-変数)
@@ -24,7 +26,14 @@
         - [1.3.3. 構造体のメソッドと関連関数](#133-構造体のメソッドと関連関数)
             - [1.3.3.1. メソッド](#1331-メソッド)
             - [1.3.3.2. 関数](#1332-関数)
-            - [1.3.3.3. 関数](#1333-関数)
+    - [1.4. Enumとパターンマッチング](#14-enumとパターンマッチング)
+        - [1.4.1. Enumの定義](#141-enumの定義)
+        - [1.4.2. パターンマッチング](#142-パターンマッチング)
+            - [1.4.2.1. matchフロー演算子](#1421-matchフロー演算子)
+            - [1.4.2.2. if let](#1422-if-let)
+            - [1.4.2.3. Option](#1423-option)
+
+<!-- /TOC -->
 
 # 1. Learning-Rust
 [![CircleCI](https://circleci.com/gh/beatdjam/Learning-Rust.svg?style=svg)](https://circleci.com/gh/beatdjam/Learning-Rust)  
@@ -328,8 +337,7 @@ RustにはDebug用の出力を行う機能と`Debugトレイト`が存在して�
 インスタンスの中の値などを確認することが出来る。  
 ```rust
 // Debugトレイトを継承する注釈
-
-# 2. [derive(Debug)]
+#[derive(Debug)]
 struct Rectangle {
     width: u32,
     height: u32,
@@ -356,7 +364,7 @@ let black = Color(0, 0, 0);
 
 ### 1.3.3. 構造体のメソッドと関連関数
 構造体には、`impl`ブロック内でインスタンスやその型に紐づくメソッド・関数を定義することが出来る。  
-これらは複数させることができるが、通常の利用ケースでは分ける意味は薄い。
+これらは複数定義することができるが、通常の利用ケースでは分ける意味は薄い。
 
 #### 1.3.3.1. メソッド
 引数に`&self`や`self`がある場合、インスタンスに紐づくメソッドとして定義される。   
@@ -381,6 +389,7 @@ fn main() {
     println!("{}", tarou.get_full_name());
 }
 ```
+
 #### 1.3.3.2. 関数
 引数に`&self`や`self`がない場合、型に紐づく関数として定義される。    
 ```rust
@@ -393,3 +402,129 @@ impl Rectangle {
 // String::new()などでよく見る形
 let sq = Rectangle::square(3);
 ```
+
+## 1.4. Enumとパターンマッチング
+
+### 1.4.1. Enumの定義
+`Enum`は、取りうる値をすべて列挙したものを1つの型として扱う仕組み。  
+`Enum型::列挙子名`でインスタンスを生成出来る。
+それぞれの列挙子毎にフィールドを持つことが可能で、  
+このフィールドは型が同じである必要はなく、匿名の構造体を持つことなども出来る。  
+また、構造体のように`impl`を用いてメソッドなどを定義することも可能である。
+```rust
+enum Message {
+    // フィールドを持たない
+    Quit,
+    // 匿名構造体を持つ
+    Move { x: i32, y: i32 },
+    // 文字列を持つ
+    Write(String),
+    // タプル様の値を持つ
+    ChangeColor(i32, i32, i32),
+}
+
+// Enum型にメソッドを定義する
+impl Message {
+    fn get_message(&self) {
+        match self {
+            Message::Write(s) => println!("{}", s),
+            _ => println!("None"),
+        }
+    }
+}
+
+fn main() {
+    let message = Message::Write(String::from("hello"));
+    // メソッド呼び出し
+    message.get_message();
+}
+```
+
+### 1.4.2. パターンマッチング
+
+#### 1.4.2.1. matchフロー演算子
+`match`演算子はパターンに対して与えた値を比較し、パターンに応じたコードを実行させる演算子。   
+`match`のアームは式であり、実行された時の戻り値が`match`の戻り値となる。  
+`match`は取りうる値のケースを網羅する必要がある。ただし、一部の可能性のみを対象としたい場合、  
+`_`というパターンを用いることで、残りのケースをマッチさせることが出来る。  
+パターンにマッチした値の一部に束縛することで、列挙子のインスタンスから値を取り出すことも出来る。 
+```rust
+enum Message {
+    Quit,
+    Move { x: i32, y: i32 },
+    Write(String),
+    ChangeColor(i32, i32, i32),
+}
+
+impl Message {
+    fn get_message(&self) -> &str {
+        // matchのアームはすべて&strの値を返しており、
+        // そのまま関数の戻り値となっている。
+        match self {
+            // Message::Writeのインスタンスが持つStringの値をsとして束縛
+            // 式のスコープ内で利用している。
+            Message::Write(s) => &s[..],
+            _ => "None",
+        }
+    }
+}
+
+fn main() {
+    let message = Message::Write(String::from("hello"));
+    println!("{}", message.get_message());
+}
+```
+
+#### 1.4.2.2. if let
+matchを利用したいようなケースでも、該当するパターンが1つだけの場合は`if let`記法が利用できる。  
+`if let`は`else`を持つことができるが、これは1つだけしかアームのないmatch式のようなもので、  
+取りうる型を網羅することは求められない。  
+また、matchと同様に式を実行すること、パターンマッチさせることができる。つまり、以下は等価となる。  
+```rust
+let some_u8_value = Some(0u8);
+match some_u8_value {
+    Some(3) => println!("three"),
+    _ => (), // ()は何も処理を行わないユニット値
+}
+```
+
+```rust
+let some_u8_value = Some(0u8);
+if let Some(3) = some_u8_value {
+    println!("three");
+}
+```
+`if let`は、合わせて`else`や、`else`に続けて再度`else if let`の形で利用して、  
+マッチさせるパターンを増やすことも出来るが、この場合は`match`を利用するのが良い。
+```rust
+enum Message {
+    Quit,
+    Move { x: i32, y: i32 },
+    Write(String),
+    ChangeColor(i32, i32, i32),
+}
+
+fn get_message(msg: Message) {
+    if let Message::Quit = msg {
+        println!("Quit")
+    } else if let Message::Move { x, y } = msg {
+        println!("x: {}, y: {}", x, y)
+    } else if let Message::Write(s) = msg {
+        println!("{}", s)
+    } else {
+        println!("ChangeColor")
+    }
+}
+```
+
+#### 1.4.2.3. Option
+Rustには、値を取るか取らないかがわからない状態を表現するために、`Option<T>`型が存在する。  
+これは、下記の形のEnumである。  
+```rust
+enum Option<T> {
+    Some(T),
+    None,
+}
+```
+このEnumは、T型の値を持っていることを表す`Some(T)`と、値の存在しない`None`の2つの列挙子を持っている。  
+つまり、`Option<T>`型は、パターンマッチによって`Some(T)`を取り出せたときに、値が存在することを表すことができる。
